@@ -1,0 +1,14 @@
+{
+  "name": "lotby-service-stream",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./build/main.js",
+  "type":"module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc && node ./build/main.js",
+    "start": "tsc && node ./build/main.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
