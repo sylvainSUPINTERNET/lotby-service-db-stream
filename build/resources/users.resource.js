@@ -18,9 +18,28 @@ const users_service_1 = require("../services/users.service");
 exports.usersResource = express_1.default.Router();
 let service = new users_service_1.UsersService();
 exports.usersResource.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    res
-        .status(200)
-        .json({
-        "data": yield service.getAllUsers()
-    });
+    try {
+        res
+            .status(200)
+            .json({ "data": yield service.getAllUsers() });
+    }
+    catch (e) {
+        res
+            .status(502)
+            .json({ "data": e });
+    }
+}));
+exports.usersResource.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { stripeTicketId, createdAt, email } = req.body;
+        const resp = yield service.addUser(stripeTicketId, createdAt, email);
+        res
+            .status(200)
+            .json({ "data": resp });
+    }
+    catch (e) {
+        res
+            .status(502)
+            .json({ "data": e });
+    }
 }));

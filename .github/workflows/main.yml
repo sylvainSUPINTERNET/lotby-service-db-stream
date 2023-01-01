@@ -1,4 +1,4 @@
-name: Demo GitHub Actions
+name: lotby service stream github actions
 on:
   push:
     branches: [ main, develop ]

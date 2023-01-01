@@ -35,6 +35,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const dbConn_1 = __importStar(require("../db/dbConn"));
 class UsersService {
+    addUser(stripeTicketId, createdAtISOFormat, email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const client = yield dbConn_1.default.getConn();
+                if (client) {
+                    const result = yield client.db(dbConn_1.DB_NAME).collection("users").insertOne({
+                        stripeTicketId,
+                        createdAt: createdAtISOFormat,
+                        email
+                    });
+                    return new Promise((resolve, _reject) => {
+                        resolve({
+                            id: result.insertedId,
+                            email,
+                            stripeTicketId,
+                            createdAt: createdAtISOFormat
+                        });
+                    });
+                }
+                return new Promise((_resolve, reject) => {
+                    reject("Error connecting to database, client is not started");
+                });
+            }
+            catch (e) {
+                throw new Error("Error occured while adding user");
+            }
+        });
+    }
     getAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -45,6 +73,7 @@ class UsersService {
                     for (let i = 0; i < data.length; i++) {
                         result = [...result, {
                                 id: data[i]._id,
+                                email: data[i].email,
                                 stripeTicketId: data[i].stripeTicketId,
                                 createdAt: data[i].createdAt
                             }];
@@ -58,9 +87,7 @@ class UsersService {
                 });
             }
             catch (e) {
-                return new Promise((_resolve, reject) => {
-                    reject(e);
-                });
+                throw new Error("Error occured while getting all users");
             }
         });
     }
