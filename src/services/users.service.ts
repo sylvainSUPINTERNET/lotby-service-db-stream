@@ -1,45 +1,49 @@
 import { IUser } from "../dto/users.dto";
 import { UsersRepository } from "../repositories/users.repository";
 import Db, { DB_NAME } from '../db/dbConn';
-import { InsertOneResult } from "mongodb";
 
 export class UsersService implements UsersRepository {
 
     async addUser( stripeTicketId:string, createdAtISOFormat:string, email:string ): Promise<IUser | never> {
-        try {  
+
 
             const client = await Db.getConn();
 
             if ( client ) {
+                
+                const session = client.startSession();
 
-                const result:InsertOneResult = await client.db(DB_NAME).collection("users").insertOne({
-                    stripeTicketId,
-                    createdAt: createdAtISOFormat,
-                    email
-                });
+                try {
 
-                return new Promise( (resolve, _reject) => {
+                    session.startTransaction();
 
-                    resolve({
-                        id: result.insertedId,
-                        email,
+                    const result = await client.db(DB_NAME).collection("users").insertOne({
                         stripeTicketId,
-                        createdAt: createdAtISOFormat
+                        createdAt: createdAtISOFormat,
+                        email
+                    }, { session });
+
+                    await session.commitTransaction();
+                    console.log('Transaction successfully committed.');
+
+                    return new Promise( (resolve, _reject) => {
+                        resolve({
+                            id: result.insertedId,
+                            email,
+                            stripeTicketId,
+                            createdAt: createdAtISOFormat
+                        });
                     });
 
-                });
-
+                } catch ( e ) {
+                    session.abortTransaction();
+                    throw new Error("Error occured while adding user");
+                } finally {
+                    session.endSession();
+                }
             }
 
-            return new Promise( (_resolve, reject) => {
-                reject("Error connecting to database, client is not started");
-            });
-
-        } catch ( e ) {
-
-            throw new Error("Error occured while adding user");
-
-        }
+            throw Error("Client not started. Failed to add user");
     }
 
     async getAllUsers(): Promise<IUser[] | never> {

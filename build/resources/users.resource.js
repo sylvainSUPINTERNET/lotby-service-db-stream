@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersResource = void 0;
 const express_1 = __importDefault(require("express"));
 const users_service_1 = require("../services/users.service");
+const axios_1 = __importDefault(require("axios"));
+const CLIENT_URL = process.env.CLIENT_URL;
 exports.usersResource = express_1.default.Router();
 let service = new users_service_1.UsersService();
 exports.usersResource.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -33,6 +35,9 @@ exports.usersResource.post('/', (req, res, next) => __awaiter(void 0, void 0, vo
     try {
         const { stripeTicketId, createdAt, email } = req.body;
         const resp = yield service.addUser(stripeTicketId, createdAt, email);
+        // notify
+        yield axios_1.default.post(`${CLIENT_URL}/api/lottery`, resp);
+        console.log("notifier with success");
         res
             .status(200)
             .json({ "data": resp });

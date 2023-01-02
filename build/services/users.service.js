@@ -37,14 +37,18 @@ const dbConn_1 = __importStar(require("../db/dbConn"));
 class UsersService {
     addUser(stripeTicketId, createdAtISOFormat, email) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const client = yield dbConn_1.default.getConn();
-                if (client) {
+            const client = yield dbConn_1.default.getConn();
+            if (client) {
+                const session = client.startSession();
+                try {
+                    session.startTransaction();
                     const result = yield client.db(dbConn_1.DB_NAME).collection("users").insertOne({
                         stripeTicketId,
                         createdAt: createdAtISOFormat,
                         email
-                    });
+                    }, { session });
+                    yield session.commitTransaction();
+                    console.log('Transaction successfully committed.');
                     return new Promise((resolve, _reject) => {
                         resolve({
                             id: result.insertedId,
@@ -54,13 +58,15 @@ class UsersService {
                         });
                     });
                 }
-                return new Promise((_resolve, reject) => {
-                    reject("Error connecting to database, client is not started");
-                });
+                catch (e) {
+                    session.abortTransaction();
+                    throw new Error("Error occured while adding user");
+                }
+                finally {
+                    session.endSession();
+                }
             }
-            catch (e) {
-                throw new Error("Error occured while adding user");
-            }
+            throw Error("Client not started. Failed to add user");
         });
     }
     getAllUsers() {

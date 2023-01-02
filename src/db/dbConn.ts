@@ -2,7 +2,6 @@ import { MongoClient } from "mongodb";
 
 
 const URL_CONN = process.env.DB_URI;
-const CLIENT_URL = process.env.CLIENT_URL;
 
 export const DB_NAME="lotby";
 

@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DB_NAME = void 0;
 const mongodb_1 = require("mongodb");
 const URL_CONN = process.env.DB_URI;
-const CLIENT_URL = process.env.CLIENT_URL;
 exports.DB_NAME = "lotby";
 let client;
 /**

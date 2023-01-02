@@ -1,5 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { UsersService } from '../services/users.service';
+import axios from "axios";
+
+const CLIENT_URL = process.env.CLIENT_URL;
 
 export const usersResource = express.Router();
 
@@ -29,6 +32,10 @@ usersResource.post('/', async ( req:Request, res:Response, next:NextFunction ) =
 
         const resp = await service.addUser(stripeTicketId, createdAt, email);
 
+        // notify
+        await axios.post(`${CLIENT_URL}/api/lottery`, resp);
+        console.log("notifier with success");
+        
         res
             .status(200)
             .json({"data": resp});
