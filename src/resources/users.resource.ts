@@ -26,16 +26,17 @@ usersResource.get('/', async ( req:Request, res:Response, next:NextFunction ) =>
 });
 
 usersResource.post('/', async ( req:Request, res:Response, next:NextFunction ) => {
+
     try {
 
         const { stripeTicketId, createdAt, email } = req.body;
 
         const resp = await service.addUser(stripeTicketId, createdAt, email);
 
-        // notify
-        await axios.post(`${CLIENT_URL}/api/lottery`, resp);
-        console.log("notifier with success");
-        
+        // notify - [DEPRECATED]
+        // await axios.post(`${CLIENT_URL}/api/lottery`, resp);
+        // console.log("notifier with success");
+
         res
             .status(200)
             .json({"data": resp});
