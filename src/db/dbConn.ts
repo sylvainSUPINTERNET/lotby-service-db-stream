@@ -26,6 +26,7 @@ const Db = {
             console.log("Connection to DB with success (reused)")
             return client;
 
+            
         } catch ( e ) {
             console.log(e);
         }
